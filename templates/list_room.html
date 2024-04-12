@@ -1,0 +1,185 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+
+<style>
+  :root {
+    --color-main: #FF5733;
+    --color-main-light: #FF835E;
+    --color-main-dark: #C84124;
+    --color-dark: #333;
+    --color-dark-light: #555;
+    --color-dark-medium: #777;
+    --color-gray: #999;
+    --color-background: #61677A;
+  }
+  
+  .apply-now {
+    background-color: var(--color-main-light);
+    color: var(--color-dark);
+    padding: 4rem 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .roomList {
+    background-color: var(--color-background);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .roomList__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0px 12px;
+  }
+  
+  .roomList__header h1 {
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    color: #FFF;
+  }
+
+  .roomList__header p{
+    color: #FFF;
+  }
+  
+  .btn--main {
+    background-color: #FFF6E0;
+    color: #333;
+    padding: 1rem 2rem;
+    border-radius: 35px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn--main:hover {
+    background-color: #FFCF96;
+    color: #333;
+  }
+  
+  .roomListRoom {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background-color: #D8D9DA;
+    border-radius: 15px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  .roomListRoom:hover {
+    background-color: #BED7DC;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .roomListRoom__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .roomListRoom__author span {
+    font-weight: bold;
+    color: var(--color-main);
+  }
+  
+  .roomListRoom__content a {
+    color: var(--color-dark);
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .roomListRoom__content a:hover {
+    color: var(--color-main);
+  }
+  
+  .roomListRoom__topic {
+    font-style: italic;
+    color: var(--color-gray);
+  }
+  
+  .roomListRoom__joined {
+    color: var(--color-dark);
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .roomListRoom__joined:hover {
+    color: var(--color-main-dark);
+  }
+  
+  .roomListRoom__meta {
+    display: flex; /* Add flexbox */
+    justify-content: space-between; /* Add space between items */
+    align-items: center; /* Center items vertically */
+    flex-direction: row-reverse
+  }
+  
+</style>
+
+<section class="apply-now" id="apply">
+  <div class="container">
+    <div class="roomList">
+      <div class="roomList__header">
+        <div>
+          <h1>Chat Rooms</h1>
+          <p>{{room.count}} available</p>
+        </div>
+        {% if is_coordinator %}
+        <a class="btn btn--main" href="{% url 'create-room' %}">
+          Create Room
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="scrollable-container">
+        {% for room in room %}
+        <div class="container">
+          <div class="roomListRoom">
+            <div class="roomListRoom__header">
+              <a href="" class="roomListRoom__author">
+                <span>ROOM HOST: {{ room.host.fullname }}</span>
+              </a>
+              <div class="roomListRoom__actions">
+                <span>Created {{room.created|timesince}} ago</span>
+              </div>
+            </div>
+            <div class="roomListRoom__content">
+              <a href="{% url 'room' room.id %}">Room name: {{room.name}}</a>
+              <p>
+                Description: {{room.description}}
+              </p>
+            </div>
+            <div class="roomListRoom__meta">
+              <a href="{% url 'room' room.id %}" class="roomListRoom__joined">
+                {% if room.is_private %}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock-fill" viewBox="0 0 16 16">
+                    <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
+                  </svg>
+                {% elif not room.is_private %}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-globe-asia-australia" viewBox="0 0 16 16">
+                    <path d="m10.495 6.92 1.278-.619a.483.483 0 0 0 .126-.782c-.252-.244-.682-.139-.932.107-.23.226-.513.373-.816.53l-.102.054c-.338.178-.264.626.1.736a.48.48 0 0 0 .346-.027ZM7.741 9.808V9.78a.413.413 0 1 1 .783.183l-.22.443a.6.6 0 0 1-.12.167l-.193.185a.36.36 0 1 1-.5-.516l.112-.108a.45.45 0 0 0 .138-.326M5.672 12.5l.482.233A.386.386 0 1 0 6.32 12h-.416a.7.7 0 0 1-.419-.139l-.277-.206a.302.302 0 1 0-.298.52z" />
+                    <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0M1.612 10.867l.756-1.288a1 1 0 0 1 1.545-.225l1.074 1.005a.986.986 0 0 0 1.36-.011l.038-.037a.88.88 0 0 0 .26-.755c-.075-.548.37-1.033.92-1.099.728-.086 1.587-.324 1.728-.957.086-.386-.114-.83-.361-1.2-.207-.312 0-.8.374-.8.123 0 .24-.055.318-.15l.393-.474c.196-.237.491-.368.797-.403.554-.064 1.407-.277 1.583-.973.098-.391-.192-.634-.484-.88-.254-.212-.51-.426-.515-.741a7 7 0 0 1 3.425 7.692 1 1 0 0 0-.087-.063l-.316-.204a1 1 0 0 0-.977-.06l-.169.082a1 1 0 0 1-.741.051l-1.021-.329A1 1 0 0 0 11.205 9h-.165a1 1 0 0 0-.945.674l-.172.499a1 1 0 0 1-.404.514l-.802.518a1 1 0 0 0-.458.84v.455a1 1 0 0 0 1 1h.257a1 1 0 0 1 .542.16l.762.49a1 1 0 0 0 .283.126 7 7 0 0 1-9.49-3.409Z" />
+                  </svg>
+                {% endif %}
+                {{room.participants.all.count}} Joined
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+    </div>
+  </div>
+</section>
+{%endblock%}

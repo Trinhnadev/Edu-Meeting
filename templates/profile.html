@@ -1,0 +1,55 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+
+    <style>
+      .user-information p{
+          color: #fff;
+          font-size: 18px;
+          margin: 10px 0;
+      }
+
+      .profile-container {
+          max-width: 450px;
+          margin: auto;
+          margin-top: 50px;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+          background-color: rgba(255, 255, 255, 0.1);
+          text-align: left; /* Align text to the left */
+      }
+
+      .profile-container h1 {
+          color: #fff;
+          text-align: center; /* Center the header text */
+      }
+
+      .btn-primary {
+          background-color: #2c2e3d;
+          border-color: #2c2e3d;
+          width: 60%;
+      }
+
+      .btn-primary:hover {
+          background-color: #536881;
+          border-color: #536881;
+      }
+
+  </style>
+
+    <section class="apply-now" id="apply">
+        <div class="container profile-container">
+            <h1 class="mb-4">User Profile</h1>
+            <div class="user-information text-center">
+                <p>Full Name: {{ user_profile.fullname }}</p>
+                <p>Email: {{ user_profile.email }}</p>
+                <p>Phone: {{ user_profile.phone }}</p>
+            </div>
+            <div class="text-center"> <!-- Center the button -->
+                <a href="{% url 'update_profile' %}" class="btn btn-primary">Update Information</a>
+            </div>
+        </div>
+    </section>
+
+{% endblock content %}

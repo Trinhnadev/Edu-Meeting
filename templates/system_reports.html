@@ -1,0 +1,50 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Statistics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Statistics</h1>
+
+    <section>
+        <h2>Top 10 Viewed Pages</h2>
+        <ul>
+            {% for page in page_views %}
+                <li>{{ page.url }} - {{ page.views }} views</li>
+            {% empty %}
+                <li>No page views recorded.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section>
+        <h2>Top 10 Active Users</h2>
+        <ul>
+            {% for user_profile in active_users %}
+                <li>{{ user_profile.user.username }} - {{ user_profile.activities_count }} activities</li>
+            {% empty %}
+                <li>No active users.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</body>
+</html>

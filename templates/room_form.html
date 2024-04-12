@@ -1,0 +1,106 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+
+<style>
+  body {
+      color: #fff;
+  }
+
+  .profile-container {
+      max-width: 550px;
+      margin: auto;
+      margin-top: 50px;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.1);
+      text-align: left; /* Align text to the left */
+  }
+
+  .profile-container h1 {
+      color: #fff;
+      text-align: center; /* Center the header text */
+  }
+
+  .btn-primary {
+      background-color: #2c2e3d;
+      border-color: #2c2e3d;
+      width: 60%;
+  }
+
+  .btn-primary:hover {
+      background-color: #536881;
+      border-color: #536881;
+  }
+
+</style>
+
+<section class="apply-now" id="apply">
+  <div class="container profile-container">
+    <h1 class="mb-4">Create/Update Study Room</h1>
+
+    <!-- Personal Information Form -->
+    <form class="form" action="" method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label" for="id_faculty">Room Faculty: </label>
+            <select name="faculty" id="id_faculty" class="form-control" required>
+              <option value="">Select ...</option>
+              {% for faculty in faculties %}
+              <option value="{{ faculty.pk }}">{{ faculty.name }}</option>
+              {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="room_name" class="form-label">Room Name:</label>
+            <input type="text" class="form-control" id="name" name="name" value="" required>
+        </div>
+
+        <div class="mb-3">
+          
+            <label for="room_description" class="form-label">Room Description:</label>
+            <textarea type="text" class="form-control" id="description" name="description" value="" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="room_status" class="form-label">Room Status (Select):</label>
+            <select id="room_status" class="form-control" name="is_private" onchange="toggleQuestionAnswer();" required>
+              <option value="False">Public</option>
+              <option value="True">Private</option>
+            </select>            
+        </div>
+
+        <div class="mb-3 question-answer">
+            <label for="room_question" class="form-label">Room Question:</label>
+            <input type="text" class="form-control" id="question" name="question" value="" required>
+        </div>
+
+        <div class="mb-3 question-answer">
+            <label for="room_anwser" class="form-label">Room Keyword:</label>
+            <input type="text" class="form-control" id="answer" name="answer" value="" required>
+        </div>
+      
+        <div class="text-center">
+          <a class="btn btn-danger" href="{{request.META.HTTP_REFERER}}">Cancel</a>
+          <button type="submit" class="btn btn-primary">Create room</button>
+        </div>
+    </form>
+  </div>
+</section>
+<script>
+  function toggleQuestionAnswer() {
+      var isPrivate = document.getElementById('room_status').value === 'True';
+      var questionsAndAnswers = document.querySelectorAll('.question-answer');
+      for (var i = 0; i < questionsAndAnswers.length; i++) {
+          questionsAndAnswers[i].style.display = isPrivate ? 'block' : 'none';
+          var inputs = questionsAndAnswers[i].querySelectorAll('input');
+          for (var j = 0; j < inputs.length; j++) {
+              inputs[j].required = isPrivate;
+          }
+      }
+  }
+  document.addEventListener('DOMContentLoaded', toggleQuestionAnswer);
+</script>
+{% endblock content %}

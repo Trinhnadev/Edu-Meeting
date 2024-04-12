@@ -1,0 +1,100 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+
+    <style>
+      body {
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+      }
+
+      form {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 2000px;
+        margin: auto;
+      }
+
+      .header-content {
+        margin: 30px;
+        padding: 10px auto;
+      }
+
+      h2 {
+        text-align: center;
+        color: #fff;
+        margin: 20px 0;
+      }
+
+      .truncate-text {
+        white-space: nowrap;      
+        overflow: hidden;         
+        text-overflow: ellipsis;   
+        display: inline-block;    
+        max-width: 200px;          
+      }    
+    </style>
+
+    <!-- Main Content -->
+    <section class="apply-now" id="apply">
+      <div class="container">
+        <h2>My Contributions</h2>
+        <form method="post" enctype="">
+          <table class="table mt-3">
+            <thead class="thead-dark">
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Description</th>
+                <th scope="col">Created Time</th>
+                <th scope="col">Closure Day</th>
+                <th scope="col">Final Closure Day</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for contribution in contributions %}
+              <tr>
+                  <td>
+                      <span class="truncate-text">{{ contribution.title }}</span>
+                  </td>              
+                  <td>{{ contribution.content|default:"No description provided" }}</td>
+                  <td>{{ contribution.createAt|date:"H:i d-m-Y" }}</td>
+                  <td>{{ contribution.academic_Year.closure|date:"H:i d-m-Y" }}</td>
+                  <td>{{ contribution.academic_Year.finalClosure|date:"H:i d-m-Y" }}</td>
+                  <td>
+                    {% if contribution.status == 'approved' %}
+                        Approved
+                    {% elif contribution.status == 'rejected' %}
+                        Rejected
+                    {% else %}
+                        Waiting
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if not contribution.status == 'approved' %}
+                        {% if contribution.is_expired %}
+                        {% else %}
+                            <a href="{% url 'update_contribution' pk=contribution.id %}" class="btn btn-primary btn-sm">Update</a> |
+                            <a href="{% url 'delete_contribution' contribution.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Remove</a> | 
+                        {% endif %}
+                    {% endif %}
+                    <a href="{% url 'contributions_detail' contribution.id %}" class="btn btn-warning btn-sm">View Detail</a>
+                </td>                
+              </tr>
+            {% empty %}
+              <tr>
+                  <td colspan="4">No contributions found.</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </section>
+
+{% endblock content %}

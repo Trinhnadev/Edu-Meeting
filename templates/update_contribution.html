@@ -1,0 +1,114 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+
+    <style>
+      container {
+        background-color: #f5f5f5;
+        padding: 20px;
+      }
+  
+      form {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 700px;
+        margin: auto;
+      }
+  
+      label {
+        display: block;
+        margin-bottom: 5px;
+        margin-top: 20px;
+        color: #333;
+      }
+  
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        display: inline-block;
+      }
+  
+      input[type="checkbox"] {
+        margin-top: 0px;
+      }
+  
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        padding: 14px 20px;
+        margin: 20px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+      }
+  
+      input[type="submit"].enable-hover:hover {
+        background-color: #45a049;
+      }      
+  
+      input[type="file"] {
+        background-color: #ffffff;
+        margin-top: 5px;
+      }
+  
+      input:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+    </style>
+
+    <section class="apply-now" id="apply">
+      <div class="container">
+        <section onload="toggleUploadButton()">
+          <!-- Call the function on page load to set the initial state of the button -->
+          <h2 class="text-center text-white" style="margin: 20px">
+            Update Contribution
+          </h2>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" value="{{ contribution.title }}" required><br> 
+            
+            <label for="content">Content:</label>
+            <textarea id="content" name="content" required>{{ contribution.content }}</textarea><br>
+        
+            
+        
+            <label for="word">Word Document (optional):</label>
+            {% if contribution_files.word %}
+              <a href="{{ contribution_files.word.url }}">Current File</a><br>
+            {% endif %}
+            <input type="file" id="word" name="word" accept=".doc, .docx"><br>
+        
+            <label for="img">Image (optional):</label>
+            {% if contribution_files.img %}
+              <a href="{{ contribution_files.img.url }}" alt="Current Image">Current Image</a><br>
+            {% endif %}
+            <input type="file" id="img" name="img" accept="image/*"><br>
+            
+            <label for="id_term" name="term"><input
+              type="checkbox"
+              name="term"
+              id="term"
+              onclick="toggleUploadButton()"
+              {% if contribution.term %}checked{% endif %}
+            /> I completely agree with the terms and policies.</label>
+
+            <input type="submit" value="Update" id="uploadButton" />
+          </form>
+        </section>
+      </div>
+    </section>
+
+{% endblock content %}

@@ -1,0 +1,305 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="TemplateMo">
+  <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+
+  <title>Education Meeting HTML5 Template</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}">
+  <link rel="stylesheet" href="{% static 'css/templatemo-edu-meeting.css' %}">
+  <link rel="stylesheet" href="{% static 'css/owl.css' %}">
+  <link rel="stylesheet" href="{% static 'css/lightbox.css' %}">
+  <!-- Trong thẻ <head> của trang web của bạn -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/regular.min.css" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  
+
+
+  <!--
+
+TemplateMo 569 Edu Meeting
+
+https://templatemo.com/tm-569-edu-meeting
+
+-->
+</head>
+
+<body>
+
+  {% if messages %}
+  {% for message in messages %}
+    {% if 'login_error' in message.tags %}
+      <div class="text-center alert-info" role="alert" style="padding: 0.5rem 0.5rem;">{{ message }}</div>
+    {% elif 'welcome_back' in message.tags %}
+      <div class="text-center alert-info" role="alert" style="padding: 0.5rem 0.5rem;">{{ message }}</div>
+    {% elif 'welcome' in message.tags %}
+      <div class="text-center alert-info" role="alert" style="padding: 0.5rem 0.5rem;">{{ message }}</div>
+    {% elif 'username_exist' in message.tags %}
+      <div class="text-center alert-info" role="alert" style="padding: 0.5rem 0.5rem;">{{ message }}</div>
+    {% elif 'password_notmatch' in message.tags %}
+      <div class="text-center alert-info" role="alert" style="padding: 0.5rem 0.5rem;">{{ message }}</div>
+    {% endif %}
+  {% endfor %}
+  {% endif %}
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <nav class="main-nav">
+            <!-- ***** Logo Start ***** -->
+            <a href="{% url "home" %}" class="logo">
+              Edu Meeting
+            </a>
+            <!-- ***** Logo End ***** -->
+            <!-- ***** Menu Start ***** -->
+            <ul class="nav">
+              <li>
+                <a href="{% url "home" %}">Home</a>
+              </li>
+              {% if is_admin %}
+              <li>
+                  <a href="{% url "statistical_analysis" %}">Administrator</a>
+              </li>
+              {% endif %}
+              {% if is_coordinator or is_manager %}
+              <li>
+                  <a href="{% url "statistical_analysis" %}">Dashboard</a>
+              </li>
+              {% elif is_guest %}
+              <li>
+                <a href="{% url "statistical_analysis" %}">Statiscal Analysis</a>
+              </li>
+              {% endif %}
+              {% if user.is_authenticated %}
+              {% if not is_manager and not is_admin %}
+              <li class="has-sub">
+                <a href="javascript:void(0)">Contributions</a>
+                <ul class="sub-menu">
+                    {% if show_faculties %}
+                        {% for f in faculties %}
+                        <li>
+                            <a href="{% url 'faculty_files' f.id %}">{{ f.name }}</a>
+                        </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if is_student %}
+                    <li>
+                      <a href="{% url 'my_contributions' %}">View My Contributions</a>
+                    </li>
+                    {% endif %}
+                </ul>
+              </li>  
+              {% endif %}
+              {% endif %}          
+              {% if can_upload and is_student and not is_coordinator and not is_manager and not is_admin %}
+              <li>
+                <a href="{% url 'file_upload'%}">Upload Contributions</a>
+              </li>
+              {% endif %}
+              {% if user.is_authenticated %}
+
+              <li >
+                <a href="{% url 'profile' %}">hello {{ request.user.userprofile.fullname }}</a>
+              </li>
+              {% if not is_admin and not is_guest %}
+              <li>
+                <a href="{% url 'list_room'%}">Chat Room</a>
+              </li>
+              {% endif %}
+              <li>
+                <a href="{% url 'logout'%}">Logout</a>
+              </li>
+              {% else %}
+              <li>
+                <a href="{% url 'login' %}">Login</a>
+              </li>
+              {% endif %}
+            </ul>
+            <a class='menu-trigger'>
+              <span>Menu</span>
+            </a>
+            <!-- ***** Menu End ***** -->
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  {% block content %}
+  {% endblock content %}
+
+  <section class="contact-us" id="contact">
+    <div class="container" style="padding: 30px 0;">
+      <div class="row">
+        <div class="col-lg-9 align-self-center">
+          <div class="row">
+            <div class="col-lg-12">
+              <form id="contact" action="" method="post">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <h2>Let's get in touch</h2>
+                  </div>
+                  <div class="col-lg-4">
+                    <fieldset>
+                      <input name="name" type="text" id="name" placeholder="YOURNAME...*" required="">
+                    </fieldset>
+                  </div>
+                  <div class="col-lg-4">
+                    <fieldset>
+                      <input name="email" type="text" id="email" pattern="[^ @]*@[^ @]*" placeholder="YOUR EMAIL..."
+                        required="">
+                    </fieldset>
+                  </div>
+                  <div class="col-lg-4">
+                    <fieldset>
+                      <input name="subject" type="text" id="subject" placeholder="SUBJECT...*" required="">
+                    </fieldset>
+                  </div>
+                  <div class="col-lg-12">
+                    <fieldset>
+                      <textarea name="message" type="text" class="form-control" id="message"
+                        placeholder="YOUR MESSAGE..." required=""></textarea>
+                    </fieldset>
+                  </div>
+                  <div class="col-lg-12">
+                    <fieldset>
+                      <button type="submit" id="form-submit" class="button">SEND MESSAGE NOW</button>
+                    </fieldset>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="right-info">
+            <ul>
+              <li>
+                <h6>Phone Number</h6>
+                <span>010-020-0340</span>
+              </li>
+              <li>
+                <h6>Email Address</h6>
+                <span>info@meeting.edu</span>
+              </li>
+              <li>
+                <h6>Street Address</h6>
+                <span>Rio de Janeiro - RJ, 22795-008, Brazil</span>
+              </li>
+              <li>
+                <h6>Website URL</h6>
+                <span>www.meeting.edu</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <p>Copyright © 2022 Edu Meeting Co., Ltd. All Rights Reserved.
+        <br>
+        Develop & Design: <a href="#" title="free css templates">Trinh, Khoi, Kiet, Ratana and Hieu.</a>
+        <br>
+        Distibuted By: <a href="#" title="Build Better UI, Faster">Edu Meeting Inc.</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="{%static 'vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{%static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+  <script src="{%static 'js/isotope.min.js' %}"></script>
+  <script src="{%static 'js/owl-carousel.js' %}"></script>
+  <script src="{%static 'js/lightbox.js' %}"></script>
+  <script src="{%static 'js/tabs.js' %}"></script>
+  <script src="{%static 'js/video.js' %}"></script>
+  <script src="{%static 'js/slick-slider.js' %}"></script>
+  <script src="{%static 'js/custom.js' %}"></script>
+  <script>
+    $(".nav li:first").addClass("active");
+
+    var showSection = function showSection(section, isAnimate) {
+      var direction = section.replace(/#/, ""),
+        reqSection = $(".section").filter(
+          '[data-section="' + direction + '"]'
+        ),
+        reqSectionPos = reqSection.offset().top - 0;
+
+      if (isAnimate) {
+        $("body, html").animate(
+          {
+            scrollTop: reqSectionPos,
+          },
+          800
+        );
+      } else {
+        $("body, html").scrollTop(reqSectionPos);
+      }
+    };
+
+    var checkSection = function checkSection() {
+      $(".section").each(function () {
+        var $this = $(this),
+          topEdge = $this.offset().top - 80,
+          bottomEdge = topEdge + $this.height(),
+          wScroll = $(window).scrollTop();
+        if (topEdge < wScroll && bottomEdge > wScroll) {
+          var currentId = $this.data("section"),
+            reqLink = $("a").filter("[href*=\\#" + currentId + "]");
+          reqLink
+            .closest("li")
+            .addClass("active")
+            .siblings()
+            .removeClass("active");
+        }
+      });
+    };
+
+    $(".main-menu, .responsive-menu, .scroll-to-section").on(
+      "click",
+      "a",
+      function (e) {
+        e.preventDefault();
+        showSection($(this).attr("href"), true);
+      }
+    );
+
+    $(window).scroll(function () {
+      checkSection();
+    });
+
+    function toggleUploadButton() {
+      var checkBox = document.getElementById("id_term");
+      var uploadButton = document.getElementById("uploadButton");
+
+      if (checkBox.checked == true) {
+        uploadButton.disabled = false;
+        uploadButton.classList.add("enable-hover"); // Thêm class để kích hoạt hiệu ứng hover
+      } else {
+        uploadButton.disabled = true;
+        uploadButton.classList.remove("enable-hover"); // Loại bỏ class để vô hiệu hóa hiệu ứng hover
+      }
+    }
+
+    window.onload = toggleUploadButton;
+  </script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Dashboard - SB Admin</title>
+        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+          .chart-container {
+            width: 600px;
+            margin: auto;
+          }
+
+          canvas {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 5px #ccc;
+            margin-bottom: 20px;
+          }
+
+          .card-body {
+            display: flex;
+            flex-wrap: wrap;
+          }
+
+        </style>
+    </head>
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="{% url "home" %}">EDU MEETING</a>
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <!-- Navbar Search-->
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                <div class="input-group">
+                    <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                    <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+                </div>
+            </form>
+            <!-- Navbar-->
+            <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#!">Settings</a></li>
+                        <li><a class="dropdown-item" href="#!">Activity Log</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="{% url 'logout'%}">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+                            <div class="sb-sidenav-menu-heading">Statiscals</div>
+                            <a class="nav-link" href="{% url "statistical_analysis" %}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Statiscal Analysis
+                            </a>
+                            {% if is_admin %}
+                            <div class="sb-sidenav-menu-heading">Managements</div>
+                            <a class="nav-link" href="{% url "role_list" %}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                                Roles Management
+                            </a>
+                            <a class="nav-link" href="{% url "account_list" %}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                Accounts Management
+                            </a>
+                            <div class="sb-sidenav-menu-heading">Academic Years and Faculties</div>
+                            <a class="nav-link" href="{% url "list_academic_years" %}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                Academic Years
+                            </a>
+                            <a class="nav-link" href="{% url "list_faculties" %}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                Faculties
+                            </a>
+                            {% elif is_coordinator or is_manager %}
+                            <div class="sb-sidenav-menu-heading">Contributions Management</div>
+                            <a class="nav-link" href="{% url "manage_contributions" %}">
+                              <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                              Contributions Approval
+                            </a>
+                            {% elif is_guest %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Logged in as:</div>
+                        {{request.user.username}}
+                    </div>
+                </nav>
+            </div>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <h1 class="mt-4">Statistical Analysis</h1>
+                        {% if is_coordinator %}
+                            <div class="text-center">
+                                <p style="margin: 0px"><span style="color: red;">Students</span> in the {{request.user.userprofile.faculty}} Faculty: <span style="color: blue; font-size: 25px;">{{ total_students }}</span></p>
+                            </div>
+                            <div class="text-center">
+                                <p><span style="color: red;">Contributions</span> in the {{request.user.userprofile.faculty}} Faculty: <span style="color: blue; font-size: 25px;">{{ total_contribution }}</span></p>
+                            </div>
+                        {% endif %}
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                {% if is_coordinator or is_admin %}
+                                <div class="chart-container">
+                                    <h3>Total and Approved Contributions</h3>
+                                    <canvas id="contributionsPieChart"></canvas>
+                                </div>
+                                {% endif %}
+                                
+                                {% if is_manager or is_admin %}
+                                <div class="chart-container">
+                                    <h3>Approved Contributions by Faculty</h3>
+                                    <canvas id="approvedByFacultyPieChart"></canvas>
+                                </div>
+                                {% endif %}
+                                
+                                {% if is_guest or is_admin %}
+                                <div class="chart-container">
+                                    <div class="chart-title" style="display: flex; justify-content: space-between;">
+                                        <h3>Contributions by Faculty</h3>
+                                        <select id="academicYearFilter" onchange="updateContributionsChart()" style="border-radius: 5px;">
+                                            <option value="">Filter by Academic Year</option>
+                                            {% for year in academic_years %}
+                                            <option value="{{ year.id }}">{{ year.closure|date:"m/Y"}} - {{ year.finalClosure|date:"m/Y"}} </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <canvas id="contributionsByFacultyPieChart"></canvas>
+                                </div>
+                                {% endif %}
+
+                                {% if is_admin %}
+                                <div class="chart-container">
+                                    <h3>Total contributions over time</h3>
+                                    <canvas id="contributionsOverTimeLineChart"></canvas>
+                                </div>
+
+                                <div class="chart-container">
+                                    <h3>Number of contributions per user</h3>
+                                    <canvas id="contributionsByUserColumnChart"></canvas>
+                                </div>
+                                <div class="chart-container">
+                                    <h2>Top 10 Viewed Pages</h2>
+                                    <canvas id="pageViewsChart"></canvas>
+                                </div>
+                                
+                                <div class="chart-container">
+                                    <h2>Top 10 Active Users</h2>
+                                    <canvas id="activeUsersChart"></canvas>
+                                </div>   
+
+                                <div class="chart-container">
+                                    <h3>Number of Contributors</h3>
+                                    <canvas id="studentAccountsByFacultyBarChart"></canvas>
+                                </div>
+                                {% endif %}   
+                                
+                                {% if is_manager or is_coordinator %}
+                                <div class="chart-container">
+                                    <h3>Percentage of total contributions by status</h3>
+                                    <canvas id="totalContributionsStatusPieChart"></canvas>
+                                </div>   
+                                {% endif %}
+
+                                {% if is_admin %}
+                                <div class="chart-container">
+                                    <h3>Contributions without comments by faculty</h3>
+                                    <canvas id="contributionsWithoutCommentsByFacultyBarChart"></canvas>
+                                </div>   
+                                
+                                <div class="chart-container">
+                                    <h3>Contributions without comments after 14 days by faculty</h3>
+                                    <canvas id="contributionsNoCommentAfter14DaysBarChart"></canvas>
+                                </div>                                
+                                {% endif %}                             
+                            </div>
+                        </div>
+                    </div>
+                </main>                
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; Your Website 2023</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="{% static 'js/scripts.js' %}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (document.getElementById('contributionsPieChart')) {
+                    createPieChart('contributionsPieChart', ['Total Contributions', 'Approved Contributions'], [{{ total_contributions }}, {{ approved_contributions }}], ['#4e73df', '#1cc88a']);
+                }
+                
+                if (document.getElementById('contributionsByFacultyPieChart')) {
+                    createPieChart('contributionsByFacultyPieChart', {{ faculty_names|safe }}, {{ contributions_by_faculty|safe }}, ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']);
+                }
+                
+                if (document.getElementById('approvedByFacultyPieChart')) {
+                    createPieChart('approvedByFacultyPieChart', {{ faculty_names|safe }}, {{ approved_by_faculty|safe }}, ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']);
+                }
+
+                if (document.getElementById('contributionsOverTimeLineChart')) {
+                    createLineChart('contributionsOverTimeLineChart', {{ time_labels|safe }}, {{ contributions_over_time|safe }}, 'Total Contributions', '#4e73df');
+                }
+
+                if (document.getElementById('contributionsByUserColumnChart')) {
+                    createColumnChart('contributionsByUserColumnChart', {{ user_labels|safe }}, {{ contributions_by_user|safe }}, 'Contributions per User', '#1cc88a');
+                }
+
+                {% if is_manager or is_coordinator %}
+                    createPieChart('totalContributionsStatusPieChart', Object.keys({{ total_status_percentages|safe }}), Object.values({{ total_status_percentages|safe }}), ['#4e73df', '#1cc88a', '#e74a3b']);
+                {% endif %}
+
+                const contributionsWithoutCommentsData = JSON.parse('{{ contributions_without_comments_data | safe }}');
+                createBarChart('contributionsWithoutCommentsByFacultyBarChart', Object.keys(contributionsWithoutCommentsData), Object.values(contributionsWithoutCommentsData), 'Contributions without Comments', colors);
+            
+                const contributionsNoCommentAfter14DaysData = JSON.parse('{{ contributions_no_comment_after_14_days_data | safe }}');
+                const labelsNoComments = contributionsNoCommentAfter14DaysData.map(item => item.faculty__name);
+                const dataNoComments = contributionsNoCommentAfter14DaysData.map(item => item.total);
+                createBarChart('contributionsNoCommentAfter14DaysBarChart', labelsNoComments, dataNoComments, 'Contributions without Comments after 14 Days', colors.slice(0, labelsNoComments.length));
+            });
+
+            var colors = [
+                'rgba(78, 115, 223, 0.8)', // Blue
+                'rgba(28, 200, 138, 0.8)', // Green
+                'rgba(54, 185, 204, 0.8)', // Teal
+                'rgba(246, 194, 62, 0.8)', // Yellow
+                'rgba(231, 74, 59, 0.8)',  // Red
+                'rgba(133, 135, 150, 0.8)',// Gray
+                'rgba(142, 68, 173, 0.8)', // Purple
+                'rgba(52, 152, 219, 0.8)', // Light Blue
+                'rgba(230, 126, 34, 0.8)', // Orange
+                'rgba(46, 204, 113, 0.8)'  // Light Green
+            ];
+
+            function createBarChart(chartId, labels, data, label, colors) {
+                var ctx = document.getElementById(chartId).getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: label,
+                            data: data,
+                            backgroundColor: colors.slice(0, labels.length), // Use slice to match the number of data points
+                            borderColor: colors.map(color => color.replace('0.8', '1')), // Increase opacity for border
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            }
+            
+            function createPieChart(chartId, labels, data, backgroundColors) {
+                new Chart(document.getElementById(chartId), {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors,
+                        }]
+                    }
+                });
+            }
+
+            function createLineChart(chartId, labels, data, label, borderColor) {
+                new Chart(document.getElementById(chartId), {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: label,
+                            data: data,
+                            fill: false, 
+                            borderColor: borderColor,
+                            borderWidth: 2 
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true 
+                            }
+                        }
+                    }
+                });
+            }
+
+            function createColumnChart(chartId, labels, data, label, backgroundColor) {
+                new Chart(document.getElementById(chartId), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: backgroundColor,
+                    borderWidth: 1 
+                }]
+            },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        </script>
+
+        <script>
+            const pageViewsData = JSON.parse('{{ page_views_data | safe }}');
+            const activeUsersData = JSON.parse('{{ active_users_data | safe }}');
+            
+            const ctxPageViews = document.getElementById('pageViewsChart').getContext('2d');
+            const pageViewsChart = new Chart(ctxPageViews, {
+                type: 'bar', 
+                data: {
+                    labels: pageViewsData.labels,
+                    datasets: [{
+                        label: 'Page Views',
+                        data: pageViewsData.data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            const ctxActiveUsers = document.getElementById('activeUsersChart').getContext('2d');
+            const activeUsersChart = new Chart(ctxActiveUsers, {
+                type: 'bar',
+                data: {
+                    labels: activeUsersData.labels,
+                    datasets: [{
+                        label: 'Activities Count',
+                        data: activeUsersData.data,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            var contributionsData = {{ contributions_data|safe }};
+                
+            var colors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#8e44ad', '#3498db', '#e67e22', '#2ecc71'];
+            
+            function updateContributionsChart() {
+                var selectedYear = document.getElementById('academicYearFilter').value;
+                var filteredData = {};
+                var facultyNames = Object.keys(contributionsData);
+                facultyNames.forEach(function(faculty) {
+                    if (contributionsData[faculty][selectedYear]) {
+                        filteredData[faculty] = contributionsData[faculty][selectedYear];
+                    }
+                });
+            
+                var chartLabels = Object.keys(filteredData);
+                var chartData = Object.values(filteredData);
+            
+                var ctx = document.getElementById('contributionsByFacultyPieChart').getContext('2d');
+                if (window.contributionsChart) window.contributionsChart.destroy(); 
+                window.contributionsChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            data: chartData,
+                            backgroundColor: colors, 
+                            borderColor: 'rgba(255, 255, 255, 0.5)', 
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                });
+            }
+            </script>
+
+            <script>
+                var facultyChartLabels = {{ faculty_namess|safe }};
+                var facultyChartData = {{ faculty_countss|safe }};
+            
+                var studentAccountsByFacultyBarChartCtx = document.getElementById('studentAccountsByFacultyBarChart').getContext('2d');
+                var studentAccountsByFacultyBarChart = new Chart(studentAccountsByFacultyBarChartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: facultyChartLabels,
+                        datasets: [{
+                            label: 'Number of Student Accounts',
+                            data: facultyChartData,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            </script>
+            
+    </body>
+</html>
+

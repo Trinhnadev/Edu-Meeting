@@ -1,0 +1,334 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+<style>
+  :root {
+    --color-main: #FF5733;
+    --color-main-light: #FF835E;
+    --color-main-dark: #C84124;
+    --color-dark: #333;
+    --color-dark-light: #555;
+    --color-dark-medium: #777;
+    --color-gray: #999;
+    --color-background: #61677A;
+  }
+  
+  .apply-now {
+    background-color: var(--color-main-light);
+    color: var(--color-dark);
+    padding: 4rem 0;
+  }
+
+  .room__header{
+    color: #FFF;
+  }
+
+  .room__header p{
+    color: #FFF;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .room {
+    background-color: var(--color-background);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+  }
+  
+  .room__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem;
+  }
+  
+  .room__header h1 {
+    font-size: 2.5rem;
+    color: var(--color-dark);
+  }
+
+  .room__top {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .room__hosted{
+    display: flex;
+  }
+
+  .room__conversation{
+    background-color: #D8D9DA;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    border-radius: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .thread {
+    background-color: #FFF6E0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    margin: 15px 0;
+    padding: 20px;
+  }
+
+  .thread-detail {
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+  }
+
+  .thread-post {
+    margin-left: auto; 
+  }
+
+  .form{
+    display: flex;
+    background-color: #D8D9DA;
+    padding: 2rem;
+    margin: 10px 0;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .form input {
+    width: 100%;
+    height: 45px;
+    padding: 8px;
+    margin: auto 0;
+    box-sizing: border-box;
+    border-radius: 4px;
+    resize: vertical;
+  }
+
+  .image-upload-label{
+    margin-left: 5px;
+  }
+  
+  .participants {
+    background-color: var(--color-background);
+    padding: 2rem;
+    margin: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .participants__top{
+    color: #FFF;
+  }
+
+  .image-preview-container img{
+    width: 50px;
+  }
+
+  .truncate-text {
+    white-space: nowrap;      
+    overflow: hidden;         
+    text-overflow: ellipsis;   
+    display: inline-block;    
+    max-width: 200px;          
+  }   
+
+  .file-upload svg:hover {
+    color: #FF204E;
+  }
+  
+
+  </style>
+
+  <section class="apply-now layout layout--2" id="apply-now">
+    <div class="container">
+      <div class="row">
+        <!-- Room Start -->
+        <div class="room col-md-12 mx-auto">
+          <div class="room__top">
+            <div class="room__topLeft">
+              <a href="{% url "list_room" %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-left fw-bold" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                </svg>
+              </a>
+            </div>
+            {% if rooms.host == request.user.userprofile %}
+            <div class="room__topRight">
+              <a href="{% url 'update-room' rooms.id %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                  <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                  <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+                </svg>
+              </a>
+              <a href="{% url 'delete-room' rooms.id %}" onclick="return confirm('Are you sure?');">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-x-octagon" viewBox="0 0 16 16">
+                  <path d="M4.54.146A.5.5 0 0 1 4.893 0h6.214a.5.5 0 0 1 .353.146l4.394 4.394a.5.5 0 0 1 .146.353v6.214a.5.5 0 0 1-.146.353l-4.394 4.394a.5.5 0 0 1-.353.146H4.893a.5.5 0 0 1-.353-.146L.146 11.46A.5.5 0 0 1 0 11.107V4.893a.5.5 0 0 1 .146-.353zM5.1 1 1 5.1v5.8L5.1 15h5.8l4.1-4.1V5.1L10.9 1z"/>
+                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                </svg>
+              </a>
+            </div>
+            {% endif %}
+          </div>
+          <div class="room__box scroll">
+            <div class="room__header scroll">
+              <div class="room__info">
+                <h3>{{rooms.name}}</h3>
+                <span id="room-id" name="room-id">{{room.name}}</span>
+                <span>Created {{rooms.created|timesince}} ago</span>
+              </div>
+              <div class="room__hosted">
+                <p>Hosted By: </p>
+                <a href="" class="thread__author">
+                  <div class="avatar avatar--small">
+                    <img src="{{ rooms.host.avatar.url }}"/>
+                    <span>{{rooms.host.user.userprofile.fullname}}</span>
+                  </div>
+                </a>
+              </div>
+              <span class="room__topics">{{rooms.topic}}</span>
+            </div>
+
+            <div class="room__conversation">
+              <div class="threads scroll" id="message-container">
+                {% if message.count == 0 %}
+                  <p>
+                    <strong>No messages yet...</strong>
+                  </p>
+                {% else %}
+                  {% for message in message %}
+                  <div class="thread">
+                    <div class="thread-detail">
+                      <p>
+                        <strong>{{message.user.fullname}}: </strong>{{message.body}}
+                        {% if message.image %}
+                        <br>
+                        <img src="{{ message.image.url }}" style="width: 25%"  alt="Sent image">
+                        {% endif %}
+                      </p>
+                    </div>
+                    <div class="thread-post">
+                      <p style="margin-left: auto">
+                        <small>Posted {{message.created|timesince}} ago</small>
+                      </p>
+                    </div>
+                  </div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="room__message">
+            <form class="form" action="" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <input name="body" id="message-input" placeholder="Leave your message here..." />
+              <button type="submit" id="message-submit" hidden>submit</button>
+              <label for="image-upload" class="image-upload-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="60" fill="currentColor" class="bi bi-card-image"
+                  viewBox="0 0 16 16">
+                  <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+                  <path
+                    d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54L1 12.5v-9a.5.5 0 0 1 .5-.5z" />
+                </svg>
+              </label>
+              <input type="file" name="image" id="image-upload" hidden>
+              <div class="image-preview-container" id="image-preview-container"></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="participants col-md-8 mx-auto">
+          <div class="upload_doc" style="display: flex">
+            <h5 class="participants__top">Documents <span>({{files.count}} uploaded)</span></h5>
+            {% if can_upload %}
+            <form method="post" enctype="multipart/form-data" style="font-size: 12px; margin-left: auto">
+              {% csrf_token %}
+              <input type="file" name="file" style="width: 180px">
+              <button type="submit">Upload File</button>
+            </form>
+            {% endif %}
+          </div>
+          <br>
+          <div class="participants__list scroll" style="padding:0;">
+            {% for file in files %}
+            <div class="file-upload" style="display: flex">
+              <p style="color: #FFF6E0; display: flex; align-items: center;">
+                <a href="{{ file.file.url }}" class="truncate-text">{{ file.file.name }}</a> uploaded by {{ file.uploaded_by }}
+              </p>
+              <form action="{% url 'delete_file' file.id %}" method="post" style="display: inline;">
+                  {% csrf_token %}
+                  {% if can_upload %}
+                  <button type="submit"  class="btn btn-sm" onclick="confirmDelete({{ file.id }})">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                      <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                    </svg>
+                  </button>
+                  {% endif %}
+              </form>
+            </div>
+            <hr>          
+            {% endfor %}
+          </div>
+        </div>
+
+        
+        <div class="participants col-md-3 mx-auto">
+          <h5 class="participants__top">Participants <span>({{participants.count}} Joined)</span></h5>
+          <div class="participants__list scroll">
+            {% for p in participants %}
+              <div class="avatar avatar--medium">
+                <img src="{{p.avatar.url}}" />
+              </div>
+              <p>
+                <span style="color: #FFF6E0">@{{ p.fullname }} - 
+                  {% for role in p.roles.all %}
+                      {{ role.name }}
+                      {% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                </span>              
+              </p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {%block scripts %}
+    {{ rooms.id|json_script:"json-roomid" }}
+    {{ request.user.username|json_script:"json_username"}}
+    {{ request.user.id|json_script:"json_userID"}}
+    {{ request.user.avatar.url|json_script:"json_userAvatar"}}
+    {{ created_at|timesince|json_script:"json_createdAt" }}
+    {{ message_id|json_script:"json_messageID" }}
+    <script>
+      document.getElementById('image-upload').addEventListener('change', function (event) {
+        var imageContainer = document.getElementById('image-preview-container');
+        imageContainer.innerHTML = '';  
+
+        var file = event.target.files[0];  
+        if (file) {
+          var reader = new FileReader();  
+          reader.onload = function (e) {
+            var img = new Image();  
+            img.src = e.target.result;  
+            img.style.maxWidth = '100px';  
+            img.style.maxHeight = '100px';
+            imageContainer.appendChild(img);  
+          };
+          reader.readAsDataURL(file);  
+        }
+      });
+
+      function confirmDelete(fileId) {
+        if (confirm("Are you sure you want to delete this file?")) {
+            document.getElementById('delete-form-' + fileId).submit();
+        }
+      }
+    </script>
+    {% endblock %}
+
+  {% endblock content %}

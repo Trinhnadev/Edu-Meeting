@@ -1,0 +1,203 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+
+    <style>
+      body {
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+      }
+
+      .header-content {
+        margin: 30px;
+        padding: 10px auto;
+      }
+
+      .header-content h2 {
+        text-align: center;
+        color: #fff;
+      }
+
+      .file-crud-container {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+        box-sizing: border-box;
+        padding: 30px;
+        width: 100%;
+      }
+
+      .file-crud-container h2 {
+        text-align: center;
+      }
+
+      .truncated {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 800px;
+      }
+
+      .content {
+        display: flex;
+        margin: 10px 0;
+      }
+
+      .content a {
+        margin: 0 5px;
+      }
+
+      .file-upload-form button {
+        justify-content: center;
+      }
+
+      .container .btn-primary {
+        background-color: #2c2e3d;
+        border-color: #2c2e3d;
+        margin-top: 10px;
+      }
+
+      .container .btn-primary:hover {
+        background-color: #536881;
+        border-color: #536881;
+      }
+
+      .navigation-container {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+        box-sizing: border-box;
+        padding: 30px;
+        width: 100%;
+      }
+
+      .feedback-box {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        margin-top: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .feedback-form {
+        margin-top: 10px;
+      }
+
+      .feedback-form textarea {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border-radius: 4px;
+        resize: vertical;
+      }
+
+      .feedback-form button {
+        margin-top: 10px;
+        padding: 6px 12px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+
+    <section class="apply-now" id="apply">
+      <div class="header-content">
+        <h2>Contribution Details</h2>
+      </div>
+
+      <div class="container-fluid">
+        <div class="row">
+          <!-- Contribution Container -->
+          <div class="col-md-8 mx-auto">
+            <div class="container">
+              <div class="file-crud-container">
+                <h2>{{ contribution.title }}</h2>
+                <p style="text-align: center;">Closure Date: {{ contribution.academic_Year.closure }} | Final Closure Date: {{ contribution.academic_Year.finalClosure }}</p>
+                <hr>
+                <h5><strong>Content:</strong> {{ contribution.content }}</h5>
+                <form class="file-upload-form" enctype="multipart/form-data">
+                  {% for file in contribution.files.all %}
+                  <div class="form-group">
+                    {% if file.word %}
+                    <div class="content">
+                      <h5 class="truncated"><strong>Document:</strong> <a href="{{ file.word.url }}">{{ file.word.name }}</a></h5>
+                    </div>
+                    {% else %}
+                    <h5><strong>Document:</strong> Do not have document files</h5>
+                    {% endif %} 
+                    {% if file.img %}
+                    <div class="content">
+                      <h5 class="truncated"><strong>Image:</strong> <a href="{{ file.img.url }}">{{ file.img.name }}</a></h5>
+                    </div>
+                    {% else %}
+                    <h5><strong>Image:</strong> Do not have image files</h5>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                  {% if not contribution.is_expired %}
+                    {% if not is_coordinator and not is_manager %}
+                    {% if contribution.status != 'approved' %}
+                    <a href="{% url 'update_contribution' pk=contribution.id %}" type="submit" class="btn btn-primary" >
+                      Update contribution
+                    </a>  
+                    {% endif %}
+                    {% endif %}
+
+                  {% endif %}
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- Navigation Container -->
+          <div class="col-md-4 mx-auto">
+            <div class="container">
+              <div class="navigation-container">
+                <div class="navigation-options">
+                  <!-- Add your navigation options here -->
+                  <h4 style="margin-bottom: 5px;">Contribution feedbacks:</h4>
+                  <smal>({{dayCanComment}} days left to give feedbacks)</small>
+                  <div class="feedback-box">
+                    {% if comments.count == 0 %}
+                      <p>
+                        <strong>No one has comment yet...</strong>
+                      </p>
+                    {% else %}
+                      {% for comment in comments %}
+                      <p>
+                        <strong>{{ comment.user.fullname }}: </strong>{{comment.comment }}
+                        <br>
+                        <small>Posted on {{ comment.createAt|date:"Y-m-d H:i:s" }}</small>
+                      </p>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                </div>
+                {% if not is_manager and can_comment %}
+                <div class="feedback-box">
+                  <form action="" method="POST">
+                    {% csrf_token %}
+                    <div class="feedback-form">
+                      <input type="hidden" name="contribution_id" value="{{ contribution.id }}">
+                      <textarea name="comment" placeholder="Leave your comment..." required></textarea>
+                      <button class="btn btn-sm" style="width: 100%">Submit Feedback</button>
+                    </div>
+                  </form>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+{% endblock content %}

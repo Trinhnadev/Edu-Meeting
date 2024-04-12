@@ -1,0 +1,165 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+
+    <style>
+      container {
+        background-color: #f5f5f5;
+        padding: 20px;
+      }
+  
+      form {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 700px;
+        margin: auto;
+      }
+  
+      label {
+        display: block;
+        margin-bottom: 5px;
+        margin-top: 20px;
+        color: #333;
+      }
+  
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        display: inline-block;
+      }
+  
+      input[type="checkbox"] {
+        margin-top: 0px;
+      }
+  
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        padding: 14px 20px;
+        margin: 20px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+      }
+  
+      input[type="submit"].enable-hover:hover {
+        background-color: #45a049;
+      }      
+  
+      input[type="file"] {
+        background-color: #ffffff;
+        margin-top: 5px;
+      }
+  
+      input:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+      .selectbox {
+  margin-bottom: 20px;
+}
+
+.selectbox .row {
+  display: flex;
+  align-items: center;
+}
+
+.selectbox .col-4 {
+  flex: 0 0 33.33333%;
+  max-width: 33.33333%;
+}
+
+.selectbox .col-7 {
+  flex: 0 0 58.33333%;
+  max-width: 58.33333%;
+}
+
+.selectbox label {
+  margin: 0;
+  color: #333;
+}
+
+.selectbox select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: inline-block;
+}
+    </style>
+
+    <section class="apply-now" id="apply">
+      <div class="container">
+        <section onload="toggleUploadButton()">
+          <h2 class="text-center text-white" style="margin: 20px">
+            Upload Contribution
+          </h2>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <label for="id_title">Title:</label>
+            <input type="text" name="title" id="id_title" required />
+
+            <label for="id_content">Content:</label>
+            <textarea name="content" id="id_content" required></textarea>
+
+            <label for="id_faculty">Faculty:</label>
+            {% for faculty in faculties %}
+              <input type="text" id="id_faculty_display" value="{{ faculty.name }}" disabled />
+              <input type="hidden" name="faculty" value="{{ faculty.pk }}" />
+            {% endfor %}
+
+            <label for="id_word">
+              Word Document (optional):
+              {% if messages %}
+                {% for message in messages %}
+                <p class="{{ message.tags }}" style="color: red; font-size: 16px">{{ message }}</p>
+                {% endfor %}
+              {% endif %}
+            </label>
+            <input type="file" name="word" id="id_word" accept=".doc, .docx" />
+            
+
+            <label for="id_img">Image (optional):</label>
+            <input type="file" name="img" id="id_img" accept="image/*" />
+
+            <div class="selectbox" style="margin: 20px 0">
+              <div class="row">
+
+                <div class="col-12">
+                  <select name="academic" id="academic" class="custom-select">
+                    <option value="">Select Academic Year ...</option>
+                    {% for faculty in valid_academic_years %}
+                    <option value="{{ faculty.id }}">Years: {{ faculty.closure|date:'Y' }} - {{ faculty.finalClosure|date:'Y' }} | Closure date: {{ faculty.closure }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <label for="id_term" name="term"><input
+              type="checkbox"
+              name="term"
+              id="id_term"
+              onclick="toggleUploadButton()"
+            /> I completely agree with <a href="{% url "term_policy" %}">EDU MEETING's terms and policies.</a></label>
+            <input type="submit" value="Upload" id="uploadButton" />
+          </form>
+        </section>
+      </div>
+    </section>
+   
+{% endblock content %}

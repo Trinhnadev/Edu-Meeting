@@ -1,0 +1,65 @@
+{% extends "header_footer.html" %}
+{%load static%}
+{% block content %}
+<style>
+    body {
+        color: #fff;
+    }
+  
+    .profile-container {
+        max-width: 550px;
+        margin: auto;
+        margin-top: 50px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.1);
+        text-align: left; /* Align text to the left */
+    }
+  
+    .profile-container h1 {
+        color: #fff;
+        text-align: center; /* Center the header text */
+    }
+  
+    .btn-primary {
+        background-color: #2c2e3d;
+        border-color: #2c2e3d;
+        width: 60%;
+    }
+  
+    .btn-primary:hover {
+        background-color: #536881;
+        border-color: #536881;
+    }
+</style>
+
+<section class="apply-now" id="apply">
+    <div class="container profile-container">
+      <h3 class="mb-4 text-center">Answer Room Question To Join</h3>
+  
+      <!-- Personal Information Form -->
+      <form class="form" action="" method="POST">
+          {% csrf_token %}
+        <div class="mb-3">
+            <h3 class="text-center">Into Room: {{ room.name }}</h3>
+            <label class=" mt-3 form-label" for="id_faculty">Question: {{ room.question }}</label>
+        </div>
+
+        <div class="mb-3">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="answer">Your anwser:</label>
+                    <input type="text" id="answer" name="answer" class="form-control" required>
+                </div>
+                <div class="text-center">
+                    <a class="btn btn-danger" href="{{request.META.HTTP_REFERER}}">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Submit answer</button>
+                </div>
+            </form>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock content %}
