@@ -1166,28 +1166,39 @@ def createRoom(request):
     return render(request, 'room_form.html', context) 
 
 @login_required(login_url='login')
-def updateRoom(request,pk):
+def updateRoom(request, pk):
     if not is_coordinators(request.user):
         return redirect('error_404')
     
-    room = Room.objects.get(id= pk)
-    form = RoomForm(instance=room)
+    room = Room.objects.get(id=pk)
     faculties = Faculties.objects.all()
-    if request.user.userprofile != room.host:
-        return HttpResponse('')
-    if request.method == 'POST':
-        topic_name = request.POST.get('topic')
-        faculties, created = Faculties.objects.get_or_create(name = topic_name)
-        room.name = request.POST.get('name')
-        room.topic = faculties
-        room.description = request.POST.get('description')
-        room.password = request.POST.get('password')
-        room.save()
 
+    # Kiểm tra xem người dùng có phải là chủ sở hữu của phòng không
+    if request.user.userprofile != room.host:
+        return HttpResponse('Unauthorized', status=401)
+
+    if request.method == 'POST':
+        # Lấy dữ liệu từ form
+        topic_name = request.POST.get('faculty')
+        room.name = request.POST.get('name')
+        room.description = request.POST.get('description')
+        room.question = request.POST.get('question')
+        room.answer = request.POST.get('answer')
+        
+        # Lưu trạng thái của phòng (có phải là private hay không)
+        room.is_private = request.POST.get('is_private') == 'True'
+
+        # Lấy hoặc tạo một bản ghi Faculty
+        faculty, created = Faculties.objects.get_or_create(name=topic_name)
+        room.topic = faculty
+        
+        # Lưu các thay đổi và chuyển hướng về trang danh sách phòng
+        room.save()
         return redirect('list_room')
 
-    context = {'form':form,'faculties':faculties,'room':room}
-    return render(request,'room_form.html',context)
+    # Nếu không phải là POST request, hiển thị form cập nhật phòng
+    context = {'faculties': faculties, 'room': room}
+    return render(request, 'room_form.html', context)
 
 @login_required(login_url='login')
 def deleteRoom(request,pk):

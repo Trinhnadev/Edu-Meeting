@@ -48,38 +48,36 @@
             <select name="faculty" id="id_faculty" class="form-control" required>
               <option value="">Select ...</option>
               {% for faculty in faculties %}
-              <option value="{{ faculty.pk }}">{{ faculty.name }}</option>
+              <option value="{{ faculty.id }}">{{ faculty.name }}</option>
               {% endfor %}
             </select>
         </div>
 
         <div class="mb-3">
             <label for="room_name" class="form-label">Room Name:</label>
-            <input type="text" class="form-control" id="name" name="name" value="" required>
+            <input type="text" class="form-control" id="name" name="name" value="{{ room.name }}" required>
         </div>
 
         <div class="mb-3">
           
             <label for="room_description" class="form-label">Room Description:</label>
-            <textarea type="text" class="form-control" id="description" name="description" value="" required></textarea>
+            <textarea type="text" class="form-control" id="description" name="description" value="{{ room.description }}" required></textarea>
         </div>
 
-        <div class="mb-3">
-            <label for="room_status" class="form-label">Room Status (Select):</label>
-            <select id="room_status" class="form-control" name="is_private" onchange="toggleQuestionAnswer();" required>
-              <option value="False">Public</option>
-              <option value="True">Private</option>
-            </select>            
-        </div>
+        <select id="room_status" class="form-control" name="is_private" onchange="toggleQuestionAnswer();" required>
+            <option value="False" {% if not room.is_private %}selected{% endif %}>Public</option>
+            <option value="True" {% if room.is_private %}selected{% endif %}>Private</option>
+        </select>
+        
 
         <div class="mb-3 question-answer">
             <label for="room_question" class="form-label">Room Question:</label>
-            <input type="text" class="form-control" id="question" name="question" value="" required>
+            <input type="text" class="form-control" id="question" name="question" value="{{ room.question }}" required>
         </div>
 
         <div class="mb-3 question-answer">
             <label for="room_anwser" class="form-label">Room Keyword:</label>
-            <input type="text" class="form-control" id="answer" name="answer" value="" required>
+            <input type="text" class="form-control" id="answer" name="answer" value="{{ room.answer }}" required>
         </div>
       
         <div class="text-center">
